@@ -43,7 +43,8 @@ export default function MainDashboard({
   onRefreshData,
   loadingData,
   selectedStationId,
-  onSelectStation
+  onSelectStation,
+  onExploreForecast
 }) {
   const [internalStationId, setInternalStationId] = useState('DELHI_CENTRAL');
   const [forecastResult, setForecastResult] = useState(null);
@@ -170,6 +171,7 @@ export default function MainDashboard({
         stations={stations}
         selectedStationId={activeStationId}
         onSelectStation={handleSelectStation}
+        onExploreForecast={onExploreForecast}
       />
 
       {/* ========================================================================= */}

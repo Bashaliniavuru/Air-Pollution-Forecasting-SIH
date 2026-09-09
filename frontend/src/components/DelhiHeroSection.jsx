@@ -5,7 +5,8 @@ export default function DelhiHeroSection({
   selectedStationName = 'Delhi (NCT Overview)',
   stations = [],
   selectedStationId,
-  onSelectStation
+  onSelectStation,
+  onExploreForecast
 }) {
   const containerRef = useRef(null);
   const [parallaxOffset, setParallaxOffset] = useState({ x: 0, y: 0 });
@@ -26,6 +27,18 @@ export default function DelhiHeroSection({
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
+      if (id === 'section-24h-forecast') {
+        el.classList.add('forecast-section-highlight');
+        setTimeout(() => el.classList.remove('forecast-section-highlight'), 2800);
+      }
+    }
+  };
+
+  const handleExploreForecastClick = () => {
+    if (onExploreForecast) {
+      onExploreForecast();
+    } else {
+      scrollToSection('section-24h-forecast');
     }
   };
 
@@ -525,7 +538,7 @@ export default function DelhiHeroSection({
           {/* "Explore Forecast →" Button */}
           <button
             id="btn-hero-explore-forecast"
-            onClick={() => scrollToSection('current-aqi-hero-card')}
+            onClick={handleExploreForecastClick}
             className="btn-primary"
             style={{
               padding: '0.65rem 1.4rem',

@@ -6,11 +6,12 @@ import TaskRunner from './components/TaskRunner';
 import ModulesOverview from './components/ModulesOverview';
 import SystemHealth from './components/SystemHealth';
 import { fetchHealth, fetchMetrics, fetchStations } from './services/api';
-import { Leaf, Info } from 'lucide-react';
+import { Leaf, Info, LayoutDashboard } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedStationId, setSelectedStationId] = useState('DELHI_CENTRAL');
+  const [dashboardHubOpen, setDashboardHubOpen] = useState(false);
   const [health, setHealth] = useState(null);
   const [metrics, setMetrics] = useState(null);
   const [stations, setStations] = useState([]);
@@ -24,6 +25,19 @@ export default function App() {
     latencyMs: null,
     error: null
   });
+
+  const handleExploreForecast = () => {
+    setActiveTab('overview');
+    setDashboardHubOpen(false);
+    setTimeout(() => {
+      const el = document.getElementById('section-24h-forecast');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.add('forecast-section-highlight');
+        setTimeout(() => el.classList.remove('forecast-section-highlight'), 2800);
+      }
+    }, 90);
+  };
 
   const loadData = async () => {
     setLoadingData(true);
@@ -98,6 +112,9 @@ export default function App() {
         stations={stations}
         selectedStationId={selectedStationId}
         onSelectStation={(id) => setSelectedStationId(id)}
+        onExploreForecast={handleExploreForecast}
+        dashboardHubOpen={dashboardHubOpen}
+        setDashboardHubOpen={setDashboardHubOpen}
       />
 
       <main className="main-content">
@@ -109,6 +126,7 @@ export default function App() {
             loadingData={loadingData}
             selectedStationId={selectedStationId}
             onSelectStation={(id) => setSelectedStationId(id)}
+            onExploreForecast={handleExploreForecast}
           />
         )}
 
@@ -209,6 +227,18 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Floating Corner Dashboard Launcher Icon */}
+      <button
+        id="floating-corner-dashboard-launcher"
+        className="floating-corner-launcher"
+        onClick={() => setDashboardHubOpen(true)}
+        title="Open Dashboard Hub & System Views"
+        aria-label="Open Dashboard Hub"
+      >
+        <LayoutDashboard size={18} />
+        <span>Dashboard Hub</span>
+      </button>
     </div>
   );
 }
