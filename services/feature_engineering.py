@@ -1,7 +1,12 @@
 """
 Feature Engineering Pipeline re-export for root services package.
 """
+from backend.services.feature_engineering import (
+    FeatureEngineeringPipeline,
+    engineer_features,
+)
 
-from backend.services.feature_engineering import FeatureEngineeringPipeline
-
-__all__ = ["FeatureEngineeringPipeline"]
+__all__ = [
+    "FeatureEngineeringPipeline",
+    "engineer_features",
+]

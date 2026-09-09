@@ -145,3 +145,10 @@ class BaselineScorer(BaseInferenceModel):
                 if forecast_24h_aqi > 350 else "Standard air quality mitigation advisory in effect."
             )
         }
+
+
+# Modular Export: XGBoost multi-horizon forecaster
+try:
+    from backend.models.train_model import XGBoostForecaster, BaseForecaster
+except ImportError:
+    pass

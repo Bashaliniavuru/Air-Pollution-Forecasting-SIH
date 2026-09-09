@@ -13,7 +13,7 @@ from .schemas import (
     TaskResponse,
     ModuleStatus
 )
-from .ml_models import BaseInferenceModel, BaselineScorer
+from .ml_models import BaseInferenceModel, BaselineScorer, XGBoostForecaster
 
 __all__ = [
     "HealthResponse",
@@ -25,5 +25,6 @@ __all__ = [
     "TaskResponse",
     "ModuleStatus",
     "BaseInferenceModel",
-    "BaselineScorer"
+    "BaselineScorer",
+    "XGBoostForecaster",
 ]

@@ -1,0 +1,62 @@
+{
+  "model_family": "XGBoost",
+  "model_type": "DirectMultiHorizonRegressor",
+  "feature_columns": [
+    "hour",
+    "day",
+    "day_of_week",
+    "month",
+    "pm2_5",
+    "pm10",
+    "previous_1_hour_AQI",
+    "previous_3_hour_AQI",
+    "previous_6_hour_AQI",
+    "previous_PM2.5",
+    "previous_PM10",
+    "rolling_3_hour_AQI",
+    "rolling_6_hour_AQI",
+    "rolling_12_hour_AQI",
+    "temperature",
+    "humidity",
+    "wind_speed",
+    "wind_direction",
+    "atmospheric_pressure",
+    "rainfall"
+  ],
+  "horizons_supported": [
+    1,
+    6,
+    24
+  ],
+  "metrics": {
+    "1h": {
+      "horizon_hours": 1,
+      "MAE": 7.8,
+      "RMSE": 10.941,
+      "R2": 0.9578,
+      "test_samples": 3440,
+      "target_mean": 447.51,
+      "target_std": 53.24
+    },
+    "6h": {
+      "horizon_hours": 6,
+      "MAE": 14.099,
+      "RMSE": 19.171,
+      "R2": 0.8709,
+      "test_samples": 3440,
+      "target_mean": 447.36,
+      "target_std": 53.36
+    },
+    "24h": {
+      "horizon_hours": 24,
+      "MAE": 14.716,
+      "RMSE": 20.128,
+      "R2": 0.8577,
+      "test_samples": 3440,
+      "target_mean": 447.4,
+      "target_std": 53.37
+    }
+  },
+  "trained_at": "2026-09-09T07:15:33.296021+00:00",
+  "status": "TRAINED_AND_VERIFIED"
+}
