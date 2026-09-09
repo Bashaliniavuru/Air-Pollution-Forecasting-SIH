@@ -100,3 +100,10 @@ class BaselineScorer(BaseInferenceModel):
             "meteorological_driver": f"Low wind speed ({wind_speed_kmh} km/h) & low PBL ({pbl_height_m}m) are impeding atmospheric dispersion.",
             "advisory": "GRAP Stage III / IV emergency measures recommended due to projected severe stagnation." if estimated_aqi > 350 else "Standard air quality mitigation advisory in effect."
         }
+
+
+# Modular Export: XGBoost multi-horizon forecaster
+try:
+    from backend.models.train_model import XGBoostForecaster, BaseForecaster
+except ImportError:
+    pass
