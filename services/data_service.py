@@ -38,9 +38,15 @@ class DataService:
     """
 
     def __init__(self, data_dir: str = "data"):
-        self.data_dir = data_dir
-        self.raw_dir = os.path.join(data_dir, "raw")
-        self.processed_dir = os.path.join(data_dir, "processed")
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        if not os.path.isabs(data_dir):
+            candidate = os.path.join(root_dir, data_dir)
+            self.data_dir = candidate if os.path.exists(candidate) else os.path.abspath(data_dir)
+        else:
+            self.data_dir = data_dir
+            
+        self.raw_dir = os.path.join(self.data_dir, "raw")
+        self.processed_dir = os.path.join(self.data_dir, "processed")
         self._fallback_stations: List[StationObservation] = []
         self._fallback_records: List[DataRecord] = []
         self._initialize_fallback_data()

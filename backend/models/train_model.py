@@ -400,8 +400,21 @@ class XGBoostForecaster(BaseForecaster):
         self.load_models(self.models_dir)
 
     def load_models(self, models_dir: str) -> bool:
-        """Loads serialized XGBoost models from disk."""
-        self.models_dir = os.path.abspath(models_dir)
+        """Loads serialized XGBoost models from disk using robust multi-path resolution."""
+        candidate_dirs = [
+            os.path.abspath(models_dir),
+            os.path.join(ROOT_DIR, "models"),
+            os.path.join(ROOT_DIR, models_dir),
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "models")),
+        ]
+        
+        target_dir = os.path.abspath(models_dir)
+        for cd in candidate_dirs:
+            if os.path.exists(os.path.join(cd, "xgboost_aqi_1h.json")):
+                target_dir = cd
+                break
+                
+        self.models_dir = target_dir
         try:
             for h in [1, 6, 24]:
                 model_path = os.path.join(self.models_dir, f"xgboost_aqi_{h}h.json")
