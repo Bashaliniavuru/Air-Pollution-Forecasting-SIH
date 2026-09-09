@@ -51,10 +51,11 @@ export default function App() {
 
       const latency = Math.round(performance.now() - startTime);
 
-      if (sResult.isLive && sResult.data && sResult.data.length > 0) {
-        setStations(sResult.data);
-        setHealth(hResult.data);
-        setMetrics(mResult.data);
+      if (sResult && (sResult.isLive || (Array.isArray(sResult) && sResult.length > 0) || (sResult.data && sResult.data.length > 0))) {
+        const stationsData = Array.isArray(sResult) ? sResult : (sResult.data || []);
+        setStations(stationsData);
+        setHealth(hResult && hResult.data ? hResult.data : hResult);
+        setMetrics(mResult && mResult.data ? mResult.data : mResult);
         setApiStatus({
           status: 'LIVE',
           isLive: true,
@@ -65,11 +66,10 @@ export default function App() {
           error: null
         });
       } else {
-        // API failed (timeout, network error, missing fields, invalid/empty response)
-        const errorMsg = sResult.message || 'Live sensor API unavailable';
-        setStations(sResult.data || []);
-        setHealth(hResult.data || null);
-        setMetrics(mResult.data || null);
+        const errorMsg = (sResult && sResult.message) || 'Live sensor API unavailable';
+        setStations((sResult && sResult.data) || []);
+        setHealth((hResult && hResult.data) || null);
+        setMetrics((mResult && mResult.data) || null);
         setApiStatus({
           status: 'UNAVAILABLE',
           isLive: false,
@@ -183,7 +183,7 @@ export default function App() {
         )}
       </main>
 
-      {/* Footer from Reference Image with Environmental Branding */}
+      {/* Footer with Environmental Branding */}
       <footer
         style={{
           borderTop: '1.5px solid var(--border-subtle)',

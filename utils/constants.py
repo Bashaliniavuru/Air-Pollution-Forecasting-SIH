@@ -25,6 +25,13 @@ class AQICategory(str, Enum):
     SEVERE_PLUS = "SEVERE_PLUS"   # >500
 
 
+class RiskLevel(str, Enum):
+    LOW = "Low"
+    MODERATE = "Moderate"
+    HIGH = "High"
+    SEVERE = "Severe"
+
+
 DEFAULT_API_V1_PREFIX = "/api/v1"
 PROJECT_NAME = "Air Pollution-Weather Coupled Forecasting System (Delhi-NCR)"
 VERSION = "1.0.0"

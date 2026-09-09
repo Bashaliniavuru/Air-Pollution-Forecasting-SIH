@@ -69,6 +69,10 @@ export default function TaskRunner() {
             <option value="DELHI_ROHINI">Rohini (North-West Delhi)</option>
             <option value="DELHI_DWARKA">Dwarka (South-West Delhi)</option>
             <option value="DELHI_PUNJABI_BAGH">Punjabi Bagh (West Delhi)</option>
+            <option value="NOIDA_SEC_62">Sector 62 (Noida)</option>
+            <option value="GURUGRAM_VIKAS_SADAN">Vikas Sadan (Gurugram)</option>
+            <option value="GHAZIABAD_VASUNDHARA">Vasundhara (Ghaziabad)</option>
+            <option value="FARIDABAD_SEC_16A">Sector 16A (Faridabad)</option>
           </select>
         </div>
 

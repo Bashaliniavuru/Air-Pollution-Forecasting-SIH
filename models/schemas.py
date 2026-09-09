@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
-from utils.constants import AppStatus, TaskStatus, AQICategory
+from utils.constants import AppStatus, TaskStatus, AQICategory, RiskLevel
 
 
 class HealthResponse(BaseModel):
@@ -133,4 +133,29 @@ class GeminiExplainResponse(BaseModel):
     disclaimer: str = "🟡 DEMO DATA – For Prototype Demonstration Only – Physics-Grounded AI Analysis"
     timestamp: str
     error_message: Optional[str] = None
+
+
+class RiskAssessmentRequest(BaseModel):
+    predicted_aqi: int = Field(..., ge=0, description="Predicted numerical AQI value for Delhi-NCR")
+    wind_speed_kmh: Optional[float] = Field(default=None, description="Wind speed in km/h")
+    humidity_pct: Optional[float] = Field(default=None, description="Relative humidity in percentage (0-100)")
+    rainfall_mm: Optional[float] = Field(default=0.0, description="Rainfall in mm (for precipitation scavenging)")
+    pbl_height_m: Optional[float] = Field(default=None, description="Planetary boundary layer height in meters")
+    temp_c: Optional[float] = Field(default=None, description="Temperature in degrees Celsius")
+    station_id: Optional[str] = Field(default="DELHI_ANAND_VIHAR", description="Target Delhi-NCR station identifier")
+    forecast_horizon: Optional[str] = Field(default="24h", description="Forecast time horizon (e.g., '24h', '48h', '72h')")
+
+
+class RiskAssessmentResponse(BaseModel):
+    predicted_aqi: int
+    category: str
+    risk_level: str
+    warning_message: str
+    recommendation: str
+    region: str = "Delhi-NCR"
+    station_id: Optional[str] = None
+    forecast_horizon: str
+    timestamp: str
+    weather_analysis: Dict[str, Any] = Field(default_factory=dict)
+    detailed_recommendations: Optional[Dict[str, Any]] = None
 
