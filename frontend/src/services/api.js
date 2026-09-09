@@ -212,7 +212,7 @@ export async function fetchRecords() {
 /**
  * Executes a coupled atmospheric physics or forecast task.
  */
-export async function executeTask(taskType = 'FORECAST_24H_AQI', inputData = {}, stationId = 'DELHI_CENTRAL') {
+export async function executeTask(taskType = 'FORECAST_24H_AQI', inputData = {}, stationId = 'DELHI_ANAND_VIHAR') {
   try {
     const result = await fetchWithTimeout(
       `${API_BASE}/tasks/execute`,
@@ -290,6 +290,70 @@ export async function executeTask(taskType = 'FORECAST_24H_AQI', inputData = {},
       completed_at: new Date().toISOString(),
       message: 'Coupled forecast calculated via deterministic physics model.'
     };
+  }
+}
+
+/**
+ * Evaluates coupled air pollution risk and early warnings.
+ */
+export async function assessRisk(payload) {
+  try {
+    const result = await fetchWithTimeout(
+      `${API_BASE}/risk/assess`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      },
+      6000
+    );
+
+    if (result.ok && result.data) {
+      return result.data;
+    }
+    throw new Error(result.message || 'Risk assessment request failed');
+  } catch (err) {
+    console.error('Risk assessment error:', err);
+    return {
+      predicted_aqi: payload.predicted_aqi || 280,
+      category: 'Poor',
+      risk_level: 'High',
+      warning_message: 'High air pollution risk projected for Delhi-NCR.',
+      recommendation: 'Sensitive groups should avoid strenuous outdoor physical exertion.',
+      weather_analysis: {}
+    };
+  }
+}
+
+/**
+ * Fetches risk assessment for a specific station.
+ */
+export async function fetchStationRisk(stationId) {
+  try {
+    const result = await fetchWithTimeout(`${API_BASE}/risk/stations/${stationId}`, {}, 6000);
+    if (result.ok && result.data) {
+      return result.data;
+    }
+    throw new Error(result.message || 'Station risk fetch failed');
+  } catch (err) {
+    console.error(`Failed to fetch risk for station ${stationId}:`, err);
+    return null;
+  }
+}
+
+/**
+ * Fetches risk assessment across all Delhi-NCR stations.
+ */
+export async function fetchAllStationsRisk() {
+  try {
+    const result = await fetchWithTimeout(`${API_BASE}/risk/stations`, {}, 6000);
+    if (result.ok && result.data) {
+      return result.data;
+    }
+    return [];
+  } catch (err) {
+    console.error('Failed to fetch all station risks:', err);
+    return [];
   }
 }
 
@@ -376,14 +440,13 @@ export async function fetchGeminiExplanation(payload) {
  */
 export function getFallbackDemoStations() {
   return [
-    { station_id: 'DELHI_CENTRAL', station_name: 'Delhi', location: 'Central Delhi (NCT Baseline)', current_aqi: 355, category: 'VERY_POOR', pm2_5: 195.0, pm10: 310.0, no2: 72.0, o3: 38.0, so2: 15.0, co: 2.4, temperature_c: 19.0, humidity_pct: 78.0, wind_speed_kmh: 5.8, wind_direction_deg: 295.0, pressure_hpa: 1014.0, rainfall_mm: 0.0, pbl_height_m: 410.0, ventilation_index: 660.8, lat: 28.6139, lon: 77.2090, is_demo: true, source: 'DEMO_PROTOTYPE' },
-    { station_id: 'DELHI_NEW_DELHI', station_name: 'New Delhi', location: 'Central Delhi (Diplomatic Core)', current_aqi: 285, category: 'POOR', pm2_5: 145.0, pm10: 235.0, no2: 52.0, o3: 45.0, so2: 11.0, co: 1.8, temperature_c: 19.5, humidity_pct: 72.0, wind_speed_kmh: 7.2, wind_direction_deg: 290.0, pressure_hpa: 1014.5, rainfall_mm: 0.0, pbl_height_m: 480.0, ventilation_index: 960.0, lat: 28.6145, lon: 77.2085, is_demo: true, source: 'DEMO_PROTOTYPE' },
-    { station_id: 'DELHI_ROHINI', station_name: 'Rohini', location: 'North-West Delhi (Sector 16)', current_aqi: 370, category: 'VERY_POOR', pm2_5: 210.0, pm10: 325.0, no2: 65.0, o3: 34.0, so2: 14.0, co: 2.6, temperature_c: 18.0, humidity_pct: 82.0, wind_speed_kmh: 4.5, wind_direction_deg: 300.0, pressure_hpa: 1013.8, rainfall_mm: 0.0, pbl_height_m: 360.0, ventilation_index: 450.0, lat: 28.7495, lon: 77.0565, is_demo: true, source: 'DEMO_PROTOTYPE' },
-    { station_id: 'DELHI_DWARKA', station_name: 'Dwarka', location: 'South-West Delhi (Sector 8 Corridor)', current_aqi: 310, category: 'VERY_POOR', pm2_5: 165.0, pm10: 265.0, no2: 58.0, o3: 42.0, so2: 12.0, co: 2.1, temperature_c: 19.2, humidity_pct: 75.0, wind_speed_kmh: 6.8, wind_direction_deg: 285.0, pressure_hpa: 1014.2, rainfall_mm: 0.0, pbl_height_m: 440.0, ventilation_index: 831.1, lat: 28.5921, lon: 77.0460, is_demo: true, source: 'DEMO_PROTOTYPE' },
-    { station_id: 'DELHI_SAKET', station_name: 'Saket', location: 'South Delhi (District Centre)', current_aqi: 295, category: 'POOR', pm2_5: 152.0, pm10: 245.0, no2: 48.0, o3: 40.0, so2: 10.5, co: 1.9, temperature_c: 19.8, humidity_pct: 73.0, wind_speed_kmh: 7.0, wind_direction_deg: 280.0, pressure_hpa: 1014.0, rainfall_mm: 0.0, pbl_height_m: 470.0, ventilation_index: 913.9, lat: 28.5244, lon: 77.2167, is_demo: true, source: 'DEMO_PROTOTYPE' },
-    { station_id: 'DELHI_NOIDA', station_name: 'Noida', location: 'Noida Sector 62 / NCR East', current_aqi: 382, category: 'VERY_POOR', pm2_5: 218.0, pm10: 340.0, no2: 76.0, o3: 32.0, so2: 17.0, co: 2.8, temperature_c: 18.2, humidity_pct: 82.0, wind_speed_kmh: 4.8, wind_direction_deg: 290.0, pressure_hpa: 1013.7, rainfall_mm: 0.0, pbl_height_m: 375.0, ventilation_index: 500.0, lat: 28.5355, lon: 77.3910, is_demo: true, source: 'DEMO_PROTOTYPE' },
-    { station_id: 'DELHI_GHAZIABAD', station_name: 'Ghaziabad', location: 'Ghaziabad Vasundhara / NCR North-East', current_aqi: 420, category: 'SEVERE', pm2_5: 252.0, pm10: 395.0, no2: 92.0, o3: 26.0, so2: 24.0, co: 3.6, temperature_c: 17.6, humidity_pct: 87.0, wind_speed_kmh: 3.8, wind_direction_deg: 300.0, pressure_hpa: 1013.3, rainfall_mm: 0.0, pbl_height_m: 320.0, ventilation_index: 337.8, lat: 28.6692, lon: 77.4538, is_demo: true, source: 'DEMO_PROTOTYPE' },
-    { station_id: 'DELHI_GURUGRAM', station_name: 'Gurugram', location: 'Gurugram Cyber City / NCR South-West', current_aqi: 335, category: 'VERY_POOR', pm2_5: 182.0, pm10: 288.0, no2: 68.0, o3: 37.0, so2: 13.5, co: 2.4, temperature_c: 19.3, humidity_pct: 76.0, wind_speed_kmh: 6.2, wind_direction_deg: 285.0, pressure_hpa: 1014.1, rainfall_mm: 0.0, pbl_height_m: 430.0, ventilation_index: 740.7, lat: 28.4595, lon: 77.0266, is_demo: true, source: 'DEMO_PROTOTYPE' },
-    { station_id: 'DELHI_FARIDABAD', station_name: 'Faridabad', location: 'Faridabad Sector 16A / NCR South', current_aqi: 365, category: 'VERY_POOR', pm2_5: 204.0, pm10: 322.0, no2: 74.0, o3: 33.0, so2: 18.0, co: 2.7, temperature_c: 18.7, humidity_pct: 80.0, wind_speed_kmh: 5.2, wind_direction_deg: 290.0, pressure_hpa: 1013.9, rainfall_mm: 0.0, pbl_height_m: 390.0, ventilation_index: 563.3, lat: 28.4089, lon: 77.3178, is_demo: true, source: 'DEMO_PROTOTYPE' }
+    { station_id: 'DELHI_ANAND_VIHAR', station_name: 'Anand Vihar', location: 'East Delhi (Industrial/Transport Hub)', current_aqi: 268, category: 'POOR', pm2_5: 185.4, pm10: 290.2, no2: 78.5, o3: 32.1, so2: 18.3, co: 2.8, temperature_c: 34.2, humidity_pct: 62.0, wind_speed_kmh: 8.5, wind_direction_deg: 220.0, rainfall_mm: 0.0, pbl_height_m: 1200.0, ventilation_index: 2833.3, lat: 28.6468, lon: 77.3159, is_demo: true, source: 'DEMO_PROTOTYPE' },
+    { station_id: 'DELHI_ITO', station_name: 'ITO Junction', location: 'Central Delhi (High Traffic Corridor)', current_aqi: 235, category: 'POOR', pm2_5: 162.0, pm10: 245.8, no2: 65.2, o3: 28.7, so2: 15.1, co: 2.3, temperature_c: 34.0, humidity_pct: 63.5, wind_speed_kmh: 7.8, wind_direction_deg: 215.0, rainfall_mm: 0.0, pbl_height_m: 1180.0, ventilation_index: 2556.7, lat: 28.6289, lon: 77.2413, is_demo: true, source: 'DEMO_PROTOTYPE' },
+    { station_id: 'DELHI_RK_PURAM', station_name: 'R.K. Puram', location: 'South Delhi (Residential & Institutional)', current_aqi: 205, category: 'POOR', pm2_5: 142.0, pm10: 215.0, no2: 52.3, o3: 34.5, so2: 13.0, co: 1.8, temperature_c: 34.5, humidity_pct: 60.0, wind_speed_kmh: 8.2, wind_direction_deg: 225.0, rainfall_mm: 0.0, pbl_height_m: 1220.0, ventilation_index: 2778.9, lat: 28.5660, lon: 77.1767, is_demo: true, source: 'DEMO_PROTOTYPE' },
+    { station_id: 'DELHI_PUNJABI_BAGH', station_name: 'Punjabi Bagh', location: 'West Delhi (Commercial & Mixed)', current_aqi: 255, category: 'POOR', pm2_5: 178.5, pm10: 272.0, no2: 70.4, o3: 31.0, so2: 16.5, co: 2.4, temperature_c: 33.9, humidity_pct: 64.0, wind_speed_kmh: 7.5, wind_direction_deg: 210.0, rainfall_mm: 0.0, pbl_height_m: 1150.0, ventilation_index: 2395.8, lat: 28.6683, lon: 77.1167, is_demo: true, source: 'DEMO_PROTOTYPE' },
+    { station_id: 'NOIDA_SEC_62', station_name: 'Noida Sector 62', location: 'Noida (Institutional & Commercial Sector)', current_aqi: 210, category: 'POOR', pm2_5: 145.6, pm10: 220.3, no2: 55.8, o3: 35.2, so2: 12.4, co: 1.9, temperature_c: 33.8, humidity_pct: 65.0, wind_speed_kmh: 7.2, wind_direction_deg: 210.0, rainfall_mm: 0.0, pbl_height_m: 1100.0, ventilation_index: 2200.0, lat: 28.6244, lon: 77.3600, is_demo: true, source: 'DEMO_PROTOTYPE' },
+    { station_id: 'GURUGRAM_VIKAS_SADAN', station_name: 'Gurugram Vikas Sadan', location: 'Gurugram (Civic Center & Highway Corridor)', current_aqi: 188, category: 'MODERATE', pm2_5: 130.2, pm10: 198.7, no2: 48.3, o3: 40.5, so2: 10.8, co: 1.6, temperature_c: 35.1, humidity_pct: 58.0, wind_speed_kmh: 10.3, wind_direction_deg: 230.0, rainfall_mm: 0.0, pbl_height_m: 1300.0, ventilation_index: 3719.4, lat: 28.4595, lon: 77.0266, is_demo: true, source: 'DEMO_PROTOTYPE' },
+    { station_id: 'GHAZIABAD_VASUNDHARA', station_name: 'Ghaziabad Vasundhara', location: 'Ghaziabad (Residential & High Density Traffic)', current_aqi: 252, category: 'POOR', pm2_5: 175.8, pm10: 265.4, no2: 72.1, o3: 30.3, so2: 16.9, co: 2.5, temperature_c: 33.5, humidity_pct: 68.0, wind_speed_kmh: 6.8, wind_direction_deg: 200.0, rainfall_mm: 0.0, pbl_height_m: 1050.0, ventilation_index: 1983.3, lat: 28.6600, lon: 77.3570, is_demo: true, source: 'DEMO_PROTOTYPE' },
+    { station_id: 'FARIDABAD_SEC_16A', station_name: 'Faridabad Sector 16A', location: 'Faridabad (Commercial & Mixed Industrial)', current_aqi: 170, category: 'MODERATE', pm2_5: 120.5, pm10: 180.3, no2: 42.7, o3: 45.8, so2: 9.5, co: 1.4, temperature_c: 34.8, humidity_pct: 60.0, wind_speed_kmh: 9.1, wind_direction_deg: 225.0, rainfall_mm: 0.0, pbl_height_m: 1250.0, ventilation_index: 3159.7, lat: 28.4089, lon: 77.3178, is_demo: true, source: 'DEMO_PROTOTYPE' }
   ];
 }

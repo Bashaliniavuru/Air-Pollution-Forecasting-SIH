@@ -98,6 +98,30 @@ class AIService:
             }
             
             inference_result = self.run_inference(merged_inputs)
+
+            # Enrich inference with coupled pollution risk and early-warning assessment
+            try:
+                from backend.services.risk_service import get_risk_service
+                risk_svc = get_risk_service()
+                risk_eval = risk_svc.assess_risk(
+                    predicted_aqi=inference_result.get("forecast_aqi", 200),
+                    weather_data={
+                        "wind_speed_kmh": merged_inputs.get("wind_speed_kmh"),
+                        "humidity_pct": merged_inputs.get("humidity_pct"),
+                        "rainfall_mm": merged_inputs.get("rainfall_mm", 0.0),
+                        "pbl_height_m": merged_inputs.get("pbl_height_m"),
+                        "temp_c": merged_inputs.get("temp_c")
+                    },
+                    station_id=station_id,
+                    forecast_horizon=inference_result.get("forecast_horizon", "24 Hours Ahead")
+                )
+                inference_result["risk_assessment"] = risk_eval
+                inference_result["risk_level"] = risk_eval["risk_level"]
+                inference_result["warning_message"] = risk_eval["warning_message"]
+                inference_result["recommendation"] = risk_eval["recommendation"]
+            except Exception as re_err:
+                logger.warning(f"Could not append risk assessment to inference result: {re_err}")
+
             response = TaskResponse(
                 task_id=task_id,
                 status=TaskStatus.COMPLETED,

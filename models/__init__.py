@@ -11,7 +11,9 @@ from .schemas import (
     AQIForecastItem,
     TaskRequest,
     TaskResponse,
-    ModuleStatus
+    ModuleStatus,
+    RiskAssessmentRequest,
+    RiskAssessmentResponse
 )
 from .ml_models import BaseInferenceModel, BaselineScorer, XGBoostForecaster
 
@@ -24,6 +26,8 @@ __all__ = [
     "TaskRequest",
     "TaskResponse",
     "ModuleStatus",
+    "RiskAssessmentRequest",
+    "RiskAssessmentResponse",
     "BaseInferenceModel",
     "BaselineScorer",
     "XGBoostForecaster",

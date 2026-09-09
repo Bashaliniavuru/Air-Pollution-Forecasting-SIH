@@ -121,11 +121,16 @@ Six_warriors/
 │   │       ├── endpoints/
 │   │       │   ├── health.py    # Health & telemetry endpoint
 │   │       │   ├── overview.py  # Delhi-NCR station metrics & data records
+│   │       │   ├── risk.py      # Pollution risk & early warning assessment
 │   │       │   └── tasks.py     # Coupled forecast pipeline execution
 │   │       └── router.py        # Aggregated v1 API router
 │   ├── config.py             # App configuration & CORS settings
+│   ├── db/
+│   │   └── supabase_client.py# Supabase PostgreSQL database client
 │   ├── main.py               # FastAPI entry point & lifespan handler
-│   └── requirements.txt      # Python dependencies
+│   ├── requirements.txt      # Python dependencies
+│   └── services/
+│       └── risk_service.py   # Multi-tier risk & meteorological analysis
 ├── data/                     # Dataset Storage & Pipeline
 │   ├── raw/                  # Ingress directory for raw CPCB/weather feeds (.gitkeep)
 │   ├── processed/            # Normalized coupled feature sets (.gitkeep)
@@ -153,12 +158,19 @@ Six_warriors/
 │   ├── ml_models.py          # CoupledForecaster & BaseInferenceModel
 │   ├── schemas.py            # Pydantic request/response schemas
 │   └── README.md             # Models architecture guide
+├── scripts/                  # Management & Database Scripts
+│   ├── seed_database.py      # Supabase NCR stations & measurements seeder
+│   └── check_schema.py       # Station & schema validation check
 ├── services/                 # Business Logic & Orchestration
 │   ├── __init__.py
 │   ├── ai_service.py         # Coupled forecasting engine
-│   ├── data_service.py       # Station data ingestion & querying
+│   ├── data_service.py       # Live Supabase station ingestion & querying
 │   ├── notification_service.py # Early warning dispatch
+│   ├── risk_service.py       # Pollution risk assessment service alias
 │   └── README.md             # Services layer guide
+├── tests/                    # Comprehensive Test Suites
+│   ├── test_backend_health.py# Route diagnostics & OpenAPI checks
+│   └── test_risk_service.py  # 24-assertion coupled risk test suite
 ├── utils/                    # Shared Utilities
 │   ├── __init__.py
 │   ├── constants.py          # Status enums, AQI categories, constants
