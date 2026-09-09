@@ -1,0 +1,65 @@
+{
+  "metadata": {
+    "project": "Air Pollution-Weather Coupled Forecasting System (Delhi-NCR)",
+    "version": "1.0.0",
+    "region": "Delhi-NCR, India",
+    "objective": "Forecast upcoming air-pollution levels by considering both pollution data and weather conditions, rather than only showing the current AQI.",
+    "created_at": "2026-09-09T00:00:00Z"
+  },
+  "stations": [
+    {
+      "station_id": "DELHI_ANAND_VIHAR",
+      "station_name": "Anand Vihar, New Delhi",
+      "coordinates": {"lat": 28.6468, "lon": 77.3159},
+      "observations": {
+        "pm2_5_ug_m3": 218.4,
+        "pm10_ug_m3": 340.2,
+        "no2_ug_m3": 68.5,
+        "co_mg_m3": 2.8,
+        "current_aqi": 382,
+        "current_category": "VERY_POOR"
+      },
+      "meteorology": {
+        "temperature_c": 18.2,
+        "relative_humidity_pct": 82.0,
+        "wind_speed_kmh": 4.8,
+        "wind_direction_deg": 290.0,
+        "pbl_height_m": 380.0,
+        "ventilation_index": 506.7,
+        "inversion_detected": true
+      },
+      "coupled_24h_forecast": {
+        "forecast_aqi": 420,
+        "forecast_category": "SEVERE",
+        "primary_driver": "Extreme atmospheric stagnation caused by calm winds and shallow 380m PBL height."
+      }
+    },
+    {
+      "station_id": "DELHI_ITO",
+      "station_name": "ITO Junction, New Delhi",
+      "coordinates": {"lat": 28.6289, "lon": 77.2412},
+      "observations": {
+        "pm2_5_ug_m3": 192.1,
+        "pm10_ug_m3": 298.0,
+        "no2_ug_m3": 84.2,
+        "co_mg_m3": 3.1,
+        "current_aqi": 345,
+        "current_category": "VERY_POOR"
+      },
+      "meteorology": {
+        "temperature_c": 19.0,
+        "relative_humidity_pct": 76.0,
+        "wind_speed_kmh": 6.2,
+        "wind_direction_deg": 305.0,
+        "pbl_height_m": 420.0,
+        "ventilation_index": 723.3,
+        "inversion_detected": false
+      },
+      "coupled_24h_forecast": {
+        "forecast_aqi": 375,
+        "forecast_category": "VERY_POOR",
+        "primary_driver": "Moderate vehicular dispersion with low night-time mixing height."
+      }
+    }
+  ]
+}
