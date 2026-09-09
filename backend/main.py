@@ -65,4 +65,7 @@ def root_status() -> JSONResponse:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.main:app", host=settings.HOST, port=settings.PORT, reload=settings.DEBUG)
+    host = "0.0.0.0"
+    port = int(os.environ.get("PORT", 10000))
+    app_import = "main:app" if os.path.exists("main.py") else "backend.main:app"
+    uvicorn.run(app_import, host=host, port=port, reload=settings.DEBUG)

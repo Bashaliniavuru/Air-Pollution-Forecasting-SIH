@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     
     # Host & Port settings
     HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    PORT: int = int(os.environ.get("PORT", 10000))
 
     model_config = SettingsConfigDict(
         env_file=(".env", "backend/.env", os.path.join(os.path.dirname(__file__), ".env")),
