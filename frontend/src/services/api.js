@@ -4,8 +4,21 @@
  * timeout handling, strict response validation, and clean offline messaging.
  */
 
-const API_BASE = '/api/v1';
-const DEFAULT_TIMEOUT_MS = 6000;
+/**
+ * Resolves the API base URL dynamically from environment variables.
+ * In production on Vercel, VITE_API_URL points to the live Render backend.
+ * In local development, defaults to '/api/v1' which proxies to local FastAPI server.
+ */
+const getApiBaseUrl = () => {
+  const envUrl = (import.meta.env?.VITE_API_URL || '').trim().replace(/\/+$/, '');
+  if (!envUrl) {
+    return '/api/v1';
+  }
+  return envUrl.endsWith('/api/v1') ? envUrl : `${envUrl}/api/v1`;
+};
+
+const API_BASE = getApiBaseUrl();
+const DEFAULT_TIMEOUT_MS = 10000;
 
 /**
  * Robust fetch with configurable timeout abort controller and error classification.
@@ -53,7 +66,7 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = DEFAULT_TIMEOUT_M
       return {
         ok: false,
         errorType: 'TIMEOUT',
-        message: `Request timed out after ${timeoutMs}ms. Backend server might be busy or unreachable.`
+        message: `Request timed out after ${timeoutMs}ms. Backend server might be spinning up or unreachable.`
       };
     }
 
@@ -61,7 +74,7 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = DEFAULT_TIMEOUT_M
       ok: false,
       errorType: 'NETWORK_ERROR',
       message: err.message.includes('Failed to fetch')
-        ? 'Network failure: Unable to reach FastAPI backend server (http://127.0.0.1:8000).'
+        ? `Network failure: Unable to reach FastAPI backend server (${API_BASE}). Please check backend status and CORS.`
         : `Network error: ${err.message}`
     };
   }
