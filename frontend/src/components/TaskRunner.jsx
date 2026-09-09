@@ -31,10 +31,12 @@ export default function TaskRunner() {
   };
 
   return (
-    <div className="glass-card" style={{ marginBottom: '2rem' }}>
+    <div className="white-card" style={{ marginBottom: '2rem', background: '#ffffff', border: '1.5px solid var(--border-subtle)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-        <Sparkles size={20} color="#a855f7" />
-        <h3 style={{ fontSize: '1.125rem', fontWeight: 700 }}>Coupled Weather-Pollution Forecasting Pipeline</h3>
+        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ffedd5', color: '#ea580c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Sparkles size={18} />
+        </div>
+        <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>Coupled Weather-Pollution Forecasting Pipeline</h3>
       </div>
 
       <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
@@ -43,7 +45,7 @@ export default function TaskRunner() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
         <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 600 }}>
+          <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 700 }}>
             Target Delhi-NCR Station
           </label>
           <select
@@ -52,24 +54,26 @@ export default function TaskRunner() {
             onChange={(e) => setStationId(e.target.value)}
             style={{
               width: '100%',
-              background: 'rgba(0, 0, 0, 0.4)',
-              border: '1px solid var(--border-subtle)',
+              background: '#fdfbf7',
+              border: '1.5px solid #eeddc8',
               borderRadius: 'var(--radius-md)',
               padding: '0.6rem 0.8rem',
-              color: '#f8fafc',
+              color: 'var(--text-primary)',
               fontSize: '0.8125rem',
+              fontWeight: 600,
               outline: 'none'
             }}
           >
             <option value="DELHI_ANAND_VIHAR">Anand Vihar (East Delhi)</option>
-            <option value="DELHI_ITO">ITO Junction (Central Delhi)</option>
-            <option value="DELHI_RK_PURAM">R.K. Puram (South Delhi)</option>
+            <option value="DELHI_NEW_DELHI">New Delhi (Central Delhi)</option>
+            <option value="DELHI_ROHINI">Rohini (North-West Delhi)</option>
+            <option value="DELHI_DWARKA">Dwarka (South-West Delhi)</option>
             <option value="DELHI_PUNJABI_BAGH">Punjabi Bagh (West Delhi)</option>
           </select>
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 600 }}>
+          <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 700 }}>
             Wind Speed ({windSpeed} km/h)
           </label>
           <input
@@ -80,12 +84,12 @@ export default function TaskRunner() {
             step="0.5"
             value={windSpeed}
             onChange={(e) => setWindSpeed(e.target.value)}
-            style={{ width: '100%', accentColor: '#38bdf8' }}
+            style={{ width: '100%' }}
           />
         </div>
 
         <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 600 }}>
+          <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 700 }}>
             PBL Mixing Height ({pblHeight} m)
           </label>
           <input
@@ -96,7 +100,7 @@ export default function TaskRunner() {
             step="25"
             value={pblHeight}
             onChange={(e) => setPblHeight(e.target.value)}
-            style={{ width: '100%', accentColor: '#a855f7' }}
+            style={{ width: '100%' }}
           />
         </div>
       </div>
@@ -106,33 +110,33 @@ export default function TaskRunner() {
         className="btn-primary"
         onClick={handleRunTask}
         disabled={loading}
-        style={{ width: '100%', padding: '0.75rem' }}
+        style={{ width: '100%', padding: '0.75rem', fontSize: '0.875rem' }}
       >
         {loading ? <Loader2 size={16} className="pulse-dot" /> : <Play size={16} />}
         <span>{loading ? 'Computing Coupled Forecast Model...' : 'Calculate 24-Hour Projected Air Pollution'}</span>
       </button>
 
       {lastResult && lastResult.result && (
-        <div style={{ marginTop: '1.25rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.25rem' }}>
+        <div style={{ marginTop: '1.25rem', borderTop: '1px solid #f5eee4', paddingTop: '1.25rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-            <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ShieldAlert size={16} color="#f43f5e" />
+            <div style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <ShieldAlert size={16} color="#ea580c" />
               Forecast Horizon: {lastResult.result.forecast_horizon}
             </div>
-            <span className="badge badge-error">
+            <span className="badge badge-active">
               {lastResult.result.aqi_category} (Projected AQI {lastResult.result.forecast_aqi})
             </span>
           </div>
 
-          <div style={{ background: 'rgba(0,0,0,0.35)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', marginBottom: '0.75rem' }}>
-            <div style={{ fontSize: '0.8125rem', color: '#38bdf8', marginBottom: '0.4rem', fontWeight: 600 }}>
+          <div style={{ background: '#fdfbf7', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1.5px solid #fed7aa', marginBottom: '0.75rem' }}>
+            <div style={{ fontSize: '0.8125rem', color: '#c2410c', marginBottom: '0.4rem', fontWeight: 700 }}>
               Meteorological Driver:
             </div>
             <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
               {lastResult.result.meteorological_driver}
             </div>
 
-            <div style={{ fontSize: '0.8125rem', color: '#f59e0b', marginBottom: '0.4rem', fontWeight: 600 }}>
+            <div style={{ fontSize: '0.8125rem', color: '#d97706', marginBottom: '0.4rem', fontWeight: 700 }}>
               Actionable Advisory / Intervention:
             </div>
             <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>

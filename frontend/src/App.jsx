@@ -1,56 +1,90 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Activity, 
-  Cpu, 
-  Database, 
-  PlayCircle, 
-  Zap, 
-  Layers, 
-  CheckCircle2, 
-  ArrowUpRight, 
-  Sparkles,
-  Wind,
-  Gauge,
-  Thermometer,
-  CloudFog,
-  MapPin
-} from 'lucide-react';
 import Navbar from './components/Navbar';
-import MetricCard from './components/MetricCard';
-import SystemHealth from './components/SystemHealth';
-import ModulesOverview from './components/ModulesOverview';
+import MainDashboard from './components/MainDashboard';
 import DataViewer from './components/DataViewer';
 import TaskRunner from './components/TaskRunner';
+import ModulesOverview from './components/ModulesOverview';
+import SystemHealth from './components/SystemHealth';
 import { fetchHealth, fetchMetrics, fetchStations } from './services/api';
+import { Leaf, Info } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [selectedStationId, setSelectedStationId] = useState('DELHI_CENTRAL');
   const [health, setHealth] = useState(null);
   const [metrics, setMetrics] = useState(null);
   const [stations, setStations] = useState([]);
-  const [loadingHealth, setLoadingHealth] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
+  const [apiStatus, setApiStatus] = useState({
+    status: 'CONNECTING',
+    isLive: false,
+    source: 'INITIALIZING',
+    message: 'Connecting to live API...',
+    lastSynced: null,
+    latencyMs: null,
+    error: null
+  });
 
   const loadData = async () => {
-    setLoadingHealth(true);
+    setLoadingData(true);
+    const startTime = performance.now();
     try {
-      const [hData, mData, sData] = await Promise.all([
+      const [hResult, mResult, sResult] = await Promise.all([
         fetchHealth(),
         fetchMetrics(),
         fetchStations()
       ]);
-      setHealth(hData);
-      setMetrics(mData);
-      setStations(sData);
+
+      const latency = Math.round(performance.now() - startTime);
+
+      if (sResult.isLive && sResult.data && sResult.data.length > 0) {
+        setStations(sResult.data);
+        setHealth(hResult.data);
+        setMetrics(mResult.data);
+        setApiStatus({
+          status: 'LIVE',
+          isLive: true,
+          source: 'LIVE_API',
+          message: 'Connected to live API',
+          lastSynced: new Date().toISOString(),
+          latencyMs: latency,
+          error: null
+        });
+      } else {
+        // API failed (timeout, network error, missing fields, invalid/empty response)
+        const errorMsg = sResult.message || 'Live sensor API unavailable';
+        setStations(sResult.data || []);
+        setHealth(hResult.data || null);
+        setMetrics(mResult.data || null);
+        setApiStatus({
+          status: 'UNAVAILABLE',
+          isLive: false,
+          source: 'UNAVAILABLE',
+          message: errorMsg,
+          lastSynced: null,
+          latencyMs: latency,
+          error: errorMsg
+        });
+      }
     } catch (err) {
       console.error('Data load error:', err);
+      setApiStatus({
+        status: 'UNAVAILABLE',
+        isLive: false,
+        source: 'UNAVAILABLE',
+        message: 'Network failure or backend unreachable',
+        lastSynced: null,
+        latencyMs: null,
+        error: err.message
+      });
     } finally {
-      setLoadingHealth(false);
+      setLoadingData(false);
     }
   };
 
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 15000);
+    const interval = setInterval(loadData, 20000);
     return () => clearInterval(interval);
   }, []);
 
@@ -60,116 +94,120 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         healthStatus={health}
+        apiStatus={apiStatus}
+        stations={stations}
+        selectedStationId={selectedStationId}
+        onSelectStation={(id) => setSelectedStationId(id)}
       />
 
       <main className="main-content">
-        {/* Header Hero Banner */}
-        <section style={{ marginBottom: '2rem' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.85rem', borderRadius: 'var(--radius-full)', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.3)', marginBottom: '1rem', color: '#38bdf8', fontSize: '0.8125rem', fontWeight: 600 }}>
-            <MapPin size={14} />
-            <span>Focus Region: Delhi-NCR • Smart India Hackathon Prototype</span>
-          </div>
-
-          <h1 style={{ fontSize: '2.35rem', lineHeight: 1.2, marginBottom: '0.75rem' }}>
-            Air Pollution - Weather <span className="gradient-text">Coupled Forecasting System</span>
-          </h1>
-          <p style={{ fontSize: '1.0625rem', color: 'var(--text-secondary)', maxWidth: '850px', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-            <strong>Objective:</strong> Forecast upcoming air-pollution levels by considering both pollution data and weather conditions, rather than only showing the current AQI.
-          </p>
-
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button 
-              id="hero-btn-quick-run" 
-              className="btn-primary" 
-              onClick={() => setActiveTab('tasks')}
-            >
-              <Zap size={16} />
-              <span>Simulate 24h Coupled Forecast</span>
-            </button>
-            <button 
-              id="hero-btn-view-modules" 
-              className="btn-secondary" 
-              onClick={() => setActiveTab('modules')}
-            >
-              <Layers size={16} />
-              <span>Coupled Architecture Pillars</span>
-            </button>
-            <a 
-              href="http://localhost:8000/docs" 
-              target="_blank" 
-              rel="noreferrer" 
-              className="btn-secondary"
-              style={{ textDecoration: 'none' }}
-            >
-              <ArrowUpRight size={16} />
-              <span>FastAPI Swagger Docs</span>
-            </a>
-          </div>
-        </section>
-
-        {/* Top Key Metrics Row */}
-        <div className="grid-cards">
-          <MetricCard
-            title="Delhi-NCR Stations"
-            value={`${stations.length} Active`}
-            subtitle="Anand Vihar, ITO, RK Puram, Punjabi Bagh"
-            icon={MapPin}
-            color="cyan"
-          />
-          <MetricCard
-            title="Coupled Meteorology"
-            value="Wind + PBL"
-            subtitle="Ventilation Index & Inversion Risk"
-            icon={Wind}
-            color="indigo"
-          />
-          <MetricCard
-            title="Forecast Horizon"
-            value="24h – 72h"
-            subtitle="Predictive vs Static AQI"
-            icon={CloudFog}
-            color="purple"
-          />
-          <MetricCard
-            title="Current Average AQI"
-            value="350 (Very Poor)"
-            subtitle="Projected Severe Stagnation Ahead"
-            icon={Gauge}
-            color="emerald"
-          />
-        </div>
-
-        {/* Tab Switcher Body */}
         {activeTab === 'overview' && (
-          <>
-            <DataViewer stations={stations} />
-            <div className="grid-two-col">
-              <TaskRunner />
-              <SystemHealth
-                health={health}
-                onRefresh={loadData}
-                loading={loadingHealth}
-              />
-            </div>
-            <ModulesOverview modules={metrics?.modules} />
-          </>
-        )}
-
-        {activeTab === 'modules' && (
-          <ModulesOverview modules={metrics?.modules} />
+          <MainDashboard
+            stations={stations}
+            apiStatus={apiStatus}
+            onRefreshData={loadData}
+            loadingData={loadingData}
+            selectedStationId={selectedStationId}
+            onSelectStation={(id) => setSelectedStationId(id)}
+          />
         )}
 
         {activeTab === 'data' && (
-          <DataViewer stations={stations} />
+          <div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: 850, color: 'var(--text-primary)' }}>Delhi-NCR Monitoring Station Feeds</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                Continuous ambient air quality & IMD meteorological parameters across Delhi-NCR.
+              </p>
+            </div>
+            <DataViewer stations={stations} />
+          </div>
         )}
 
         {activeTab === 'tasks' && (
-          <TaskRunner />
+          <div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: 850, color: 'var(--text-primary)' }}>Coupled Forecast Simulator & What-If Engine</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                Direct manual execution of coupled atmospheric dispersion simulation tasks.
+              </p>
+            </div>
+            <TaskRunner />
+          </div>
+        )}
+
+        {activeTab === 'modules' && (
+          <div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: 850, color: 'var(--text-primary)' }}>6-Pillar Coupled System Architecture</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                Real-time operational status across all six decoupled pillars.
+              </p>
+            </div>
+            <ModulesOverview modules={metrics?.modules} />
+          </div>
+        )}
+
+        {activeTab === 'health' && (
+          <div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: 850, color: 'var(--text-primary)' }}>System Telemetry & Health Matrix</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                FastAPI service readiness, operational latency, and background daemon status.
+              </p>
+            </div>
+            <SystemHealth
+              health={health}
+              onRefresh={loadData}
+              loading={loadingData}
+            />
+          </div>
         )}
       </main>
 
-      <footer style={{ borderTop: '1px solid var(--border-subtle)', padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
-        <div>Air Pollution - Weather Coupled Forecasting System (Delhi-NCR) • React 18 + FastAPI + Python 3.13</div>
+      {/* Footer from Reference Image with Environmental Branding */}
+      <footer
+        style={{
+          borderTop: '1.5px solid var(--border-subtle)',
+          padding: '1.5rem 1.5rem',
+          color: 'var(--text-secondary)',
+          fontSize: '0.78125rem',
+          background: '#fdfbf7'
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '1340px',
+            margin: '0 auto',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '1rem'
+          }}
+        >
+          {/* Left: Brand Logo & Title */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800, color: '#1c1917' }}>
+            <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg, #ea580c 0%, #16a34a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+              <Leaf size={14} />
+            </div>
+            <span>SIX WARRIORS</span>
+            <span style={{ color: '#a8a29e', fontWeight: 400 }}>|</span>
+            <span style={{ color: '#78716c', fontWeight: 600 }}>Air Pollution-Weather Forecasting System</span>
+          </div>
+
+          {/* Center: Disclaimer from Reference */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#78716c', fontSize: '0.75rem' }}>
+            <Info size={13} color="#ea580c" />
+            <span>DEMO DATA • Prototype website for demonstration • Atmospheric Physics Coupled Modeling</span>
+          </div>
+
+          {/* Right: Environmental Mission */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#15803d', fontWeight: 700, fontSize: '0.75rem' }}>
+            <Leaf size={13} color="#16a34a" />
+            <span>Cleaner Air | Healthier Communities | A Sustainable Future</span>
+          </div>
+        </div>
       </footer>
     </div>
   );

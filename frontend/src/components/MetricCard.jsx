@@ -1,35 +1,35 @@
 import React from 'react';
 
-export default function MetricCard({ title, value, subtitle, icon: Icon, color = 'indigo' }) {
+export default function MetricCard({ title, value, subtitle, icon: Icon, color = 'orange' }) {
   const colorMap = {
-    indigo: {
-      border: 'rgba(99, 102, 241, 0.3)',
-      bg: 'rgba(99, 102, 241, 0.1)',
-      text: '#818cf8'
+    orange: {
+      border: '#fed7aa',
+      bg: '#fff7ed',
+      text: '#ea580c'
     },
-    cyan: {
-      border: 'rgba(6, 182, 212, 0.3)',
-      bg: 'rgba(6, 182, 212, 0.1)',
-      text: '#38bdf8'
+    amber: {
+      border: '#fde68a',
+      bg: '#fffbeb',
+      text: '#d97706'
     },
     emerald: {
-      border: 'rgba(16, 185, 129, 0.3)',
-      bg: 'rgba(16, 185, 129, 0.1)',
-      text: '#34d399'
+      border: '#bbf7d0',
+      bg: '#f0fdf4',
+      text: '#15803d'
     },
-    purple: {
-      border: 'rgba(168, 85, 247, 0.3)',
-      bg: 'rgba(168, 85, 247, 0.1)',
-      text: '#c084fc'
+    cyan: {
+      border: '#a5f3fc',
+      bg: '#ecfeff',
+      text: '#0891b2'
     }
   };
 
-  const scheme = colorMap[color] || colorMap.indigo;
+  const scheme = colorMap[color] || colorMap.orange;
 
   return (
-    <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+    <div className="white-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: '#ffffff', border: `1.5px solid ${scheme.border}` }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+        <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
           {title}
         </span>
         {Icon && (
@@ -47,7 +47,7 @@ export default function MetricCard({ title, value, subtitle, icon: Icon, color =
         )}
       </div>
 
-      <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em' }}>
+      <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.03em', fontFamily: 'var(--font-heading)' }}>
         {value}
       </div>
 
